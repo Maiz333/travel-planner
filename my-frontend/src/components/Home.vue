@@ -66,6 +66,36 @@
         <p v-if="saveMessage" class="success">
           {{ saveMessage }}
         </p>
+
+        <div class="saved-header">
+          <h2>Saved Plans</h2>
+          <button class="small-btn" @click="loadSavedPlans">
+            Refresh
+          </button>
+        </div>
+
+        <div v-if="savedPlans.length === 0" class="empty">
+          No saved plans yet.
+        </div>
+
+        <div class="saved-plans">
+          <div v-for="savedPlan in savedPlans" :key="savedPlan.id" class="saved-card">
+            <div>
+              <h3>{{ savedPlan.title }}</h3>
+              <small>{{ formatDate(savedPlan.created_at) }}</small>
+            </div>
+
+            <div class="saved-actions">
+              <button class="small-btn" @click="loadPlan(savedPlan)">
+                Load
+              </button>
+
+              <button class="small-btn danger-btn" @click="deletePlan(savedPlan.id)">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       </aside>
     </div>
   </div>
@@ -77,13 +107,19 @@ import { ref, onMounted } from 'vue'
 const cities = ref([])
 const places = ref([])
 const plan = ref([])
+const savedPlans = ref([])
 const selectedCity = ref('')
 const saveMessage = ref('')
 
 onMounted(async () => {
+  await loadCities()
+  await loadSavedPlans()
+})
+
+const loadCities = async () => {
   const res = await fetch('http://127.0.0.1:8000/api/cities')
   cities.value = await res.json()
-})
+}
 
 const loadPlaces = async () => {
   const res = await fetch(
@@ -99,10 +135,18 @@ const addToPlan = (place) => {
 }
 
 const savePlan = async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    saveMessage.value = 'Please login before saving your trip plan'
+    return
+  }
+
   const res = await fetch('http://127.0.0.1:8000/api/plans', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
     },
     body: JSON.stringify({
       title: 'My travel plan',
@@ -111,7 +155,76 @@ const savePlan = async () => {
   })
 
   const data = await res.json()
+
+  if (!res.ok) {
+    saveMessage.value = data.message || 'Error while saving plan'
+    return
+  }
+
   saveMessage.value = data.message
+  await loadSavedPlans()
+}
+
+const loadSavedPlans = async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    savedPlans.value = []
+    return
+  }
+
+  const res = await fetch('http://127.0.0.1:8000/api/my-plans', {
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  })
+
+  if (!res.ok) {
+    savedPlans.value = []
+    return
+  }
+
+  savedPlans.value = await res.json()
+}
+
+const loadPlan = (savedPlan) => {
+  try {
+    plan.value = JSON.parse(savedPlan.places)
+    saveMessage.value = 'Plan loaded'
+  } catch (error) {
+    saveMessage.value = 'Could not load plan'
+  }
+}
+
+const deletePlan = async (planId) => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    saveMessage.value = 'Please login before deleting a trip plan'
+    return
+  }
+
+  const res = await fetch(`http://127.0.0.1:8000/api/plans/${planId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    saveMessage.value = data.message || 'Error while deleting plan'
+    return
+  }
+
+  saveMessage.value = data.message
+  await loadSavedPlans()
+}
+
+const formatDate = (date) => {
+  if (!date) return ''
+  return new Date(date).toLocaleString()
 }
 </script>
 
@@ -221,7 +334,8 @@ h2 {
 }
 
 .btn,
-.save-btn {
+.save-btn,
+.small-btn {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
@@ -232,8 +346,18 @@ h2 {
 }
 
 .btn:hover,
-.save-btn:hover {
+.save-btn:hover,
+.small-btn:hover {
   opacity: 0.9;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #ff4d6d, #ff758f);
 }
 
 .plan-panel {
@@ -281,6 +405,48 @@ h2 {
   text-align: center;
 }
 
+.saved-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 34px;
+}
+
+.saved-header h2 {
+  margin: 0;
+}
+
+.saved-plans {
+  display: grid;
+  gap: 12px;
+}
+
+.saved-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(15, 16, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.saved-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.saved-card small {
+  color: #9ba5d9;
+}
+
+.saved-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 24px;
@@ -292,6 +458,11 @@ h2 {
 
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .saved-card {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

@@ -10,8 +10,13 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
+
+            // связь с пользователем
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
             $table->string('title');
             $table->json('places');
+
             $table->timestamps();
         });
     }

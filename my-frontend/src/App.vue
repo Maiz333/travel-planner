@@ -1,11 +1,13 @@
 <template>
-  <router-view />
+  <div>
+    <Auth />
+
+    <hr />
+
+    <router-view />
+  </div>
 </template>
 
 <script setup>
-
+import Auth from './components/Auth.vue'
 </script>
-
-<style>
-
-</style>
