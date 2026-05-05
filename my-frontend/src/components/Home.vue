@@ -39,6 +39,51 @@
             </button>
           </div>
         </div>
+
+        <div class="map-section">
+          <div class="map-title">
+            <h2>Map</h2>
+            <button class="small-btn" :disabled="plan.length === 0" @click="focusPlan">
+              Focus plan
+            </button>
+          </div>
+
+          <div class="map-wrapper">
+            <l-map
+              ref="mapRef"
+              :zoom="mapZoom"
+              :center="mapCenter"
+              class="map"
+            >
+              <l-tile-layer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+
+              <l-marker
+                v-for="place in places"
+                :key="'place-' + place.id"
+                :lat-lng="getPlaceCoordinates(place)"
+              >
+                <l-popup>
+                  <strong>{{ place.name }}</strong><br />
+                  {{ place.type }}
+                </l-popup>
+              </l-marker>
+
+              <l-marker
+                v-for="item in plan"
+                :key="'selected-' + item.id"
+                :lat-lng="getPlaceCoordinates(item)"
+              >
+                <l-popup>
+                  <strong>⭐ {{ item.name }}</strong><br />
+                  Added to your plan
+                </l-popup>
+              </l-marker>
+            </l-map>
+          </div>
+        </div>
       </section>
 
       <aside class="panel plan-panel">
@@ -102,7 +147,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+
+import 'leaflet/dist/leaflet.css'
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  LPopup
+} from '@vue-leaflet/vue-leaflet'
 
 const cities = ref([])
 const places = ref([])
@@ -110,6 +163,44 @@ const plan = ref([])
 const savedPlans = ref([])
 const selectedCity = ref('')
 const saveMessage = ref('')
+const mapRef = ref(null)
+
+const cityCoordinates = {
+  1: [48.8566, 2.3522],
+  2: [51.5074, -0.1278],
+  3: [35.6762, 139.6503],
+  4: [41.9028, 12.4964]
+}
+
+const placeCoordinates = {
+  'Hotel Paris': [48.8566, 2.3422],
+  'Paris Restaurant': [48.8616, 2.3522],
+  'Louvre Museum': [48.8606, 2.3376],
+
+  'London Hotel': [51.5074, -0.1278],
+  'London Restaurant': [51.5124, -0.1188],
+  'British Museum': [51.5194, -0.1270],
+
+  'Tokyo Hotel': [35.6762, 139.6503],
+  'Tokyo Sushi Restaurant': [35.6895, 139.6917],
+  'Tokyo National Museum': [35.7188, 139.7765],
+
+  'Rome Hotel': [41.9028, 12.4964],
+  'Rome Restaurant': [41.8955, 12.4823],
+  'Colosseum Museum': [41.8902, 12.4922]
+}
+
+const mapCenter = computed(() => {
+  if (selectedCity.value && cityCoordinates[selectedCity.value]) {
+    return cityCoordinates[selectedCity.value]
+  }
+
+  return [50, 10]
+})
+
+const mapZoom = computed(() => {
+  return selectedCity.value ? 12 : 5
+})
 
 onMounted(async () => {
   await loadCities()
@@ -125,12 +216,33 @@ const loadPlaces = async () => {
   const res = await fetch(
     `http://127.0.0.1:8000/api/places/${selectedCity.value}`
   )
+
   places.value = await res.json()
+}
+
+const getPlaceCoordinates = (place) => {
+  return placeCoordinates[place.name] || cityCoordinates[place.city_id] || [50, 10]
+}
+
+const focusMapOnPlace = (place) => {
+  const coordinates = getPlaceCoordinates(place)
+
+  if (mapRef.value?.leafletObject) {
+    mapRef.value.leafletObject.setView(coordinates, 14)
+  }
+}
+
+const focusPlan = () => {
+  if (plan.value.length === 0) return
+
+  const firstPlace = plan.value[0]
+  focusMapOnPlace(firstPlace)
 }
 
 const addToPlan = (place) => {
   if (!plan.value.find((item) => item.id === place.id)) {
     plan.value.push(place)
+    focusMapOnPlace(place)
   }
 }
 
@@ -191,6 +303,10 @@ const loadPlan = (savedPlan) => {
   try {
     plan.value = JSON.parse(savedPlan.places)
     saveMessage.value = 'Plan loaded'
+
+    if (plan.value.length > 0) {
+      focusMapOnPlace(plan.value[0])
+    }
   } catch (error) {
     saveMessage.value = 'Could not load plan'
   }
@@ -356,8 +472,36 @@ h2 {
   font-size: 13px;
 }
 
+.small-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .danger-btn {
   background: linear-gradient(135deg, #ff4d6d, #ff758f);
+}
+
+.map-section {
+  margin-top: 28px;
+}
+
+.map-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.map-wrapper {
+  overflow: hidden;
+  border-radius: 20px;
+  height: 360px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+.map {
+  height: 360px;
+  width: 100%;
 }
 
 .plan-panel {
