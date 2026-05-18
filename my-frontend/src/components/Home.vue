@@ -2,49 +2,94 @@
   <div class="page">
     <div class="hero">
       <div>
-        <p class="eyebrow">Travel Planner</p>
-        <h1>Build your perfect trip</h1>
+        <p class="eyebrow">Ceļojumu plānotājs</p>
+        <h1>Izveido savu ceļojuma plānu</h1>
         <p class="subtitle">
-          Choose a city, explore hotels, restaurants and museums, then create your own travel plan.
+          Izvēlies pilsētu, apskati viesnīcas, restorānus un muzejus, pievieno vietas plānam un saglabā to.
         </p>
       </div>
     </div>
 
     <div class="layout">
       <section class="panel">
-        <label class="label">Choose city</label>
+        <label class="label">Izvēlies pilsētu</label>
 
         <select v-model="selectedCity" @change="loadPlaces" class="select">
-          <option disabled value="">Choose city</option>
+          <option disabled value="">Izvēlies pilsētu</option>
           <option v-for="city in cities" :key="city.id" :value="city.id">
             {{ city.name }}
           </option>
         </select>
 
-        <h2>Places</h2>
+        <div class="tools">
+          <input
+            v-model="searchText"
+            class="input"
+            type="text"
+            placeholder="Meklēt vietu..."
+          />
 
-        <div v-if="places.length === 0" class="empty">
-          Select a city to see places.
+          <select v-model="selectedType" class="select small-select">
+            <option value="all">Visi tipi</option>
+            <option value="hotel">Viesnīcas</option>
+            <option value="restaurant">Restorāni</option>
+            <option value="museum">Muzeji</option>
+          </select>
+
+          <select v-model="sortType" class="select small-select">
+            <option value="default">Bez kārtošanas</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+          </select>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <strong>{{ places.length }}</strong>
+            <span>Vietas kopā</span>
+          </div>
+
+          <div class="stat-card">
+            <strong>{{ countByType('hotel') }}</strong>
+            <span>Viesnīcas</span>
+          </div>
+
+          <div class="stat-card">
+            <strong>{{ countByType('restaurant') }}</strong>
+            <span>Restorāni</span>
+          </div>
+
+          <div class="stat-card">
+            <strong>{{ countByType('museum') }}</strong>
+            <span>Muzeji</span>
+          </div>
+        </div>
+
+        <h2>Vietas</h2>
+
+        <div v-if="filteredPlaces.length === 0" class="empty">
+          Nav atrasta neviena vieta.
         </div>
 
         <div class="cards">
-          <div v-for="place in places" :key="place.id" class="card">
+          <div v-for="place in filteredPlaces" :key="place.id" class="card">
             <div>
-              <span class="badge">{{ place.type }}</span>
+              <span class="badge">{{ translateType(place.type) }}</span>
               <h3>{{ place.name }}</h3>
             </div>
 
             <button class="btn" @click="addToPlan(place)">
-              Add +
+              Pievienot +
             </button>
           </div>
         </div>
 
         <div class="map-section">
           <div class="map-title">
-            <h2>Map</h2>
+            <h2>Karte</h2>
+
             <button class="small-btn" :disabled="plan.length === 0" @click="focusPlan">
-              Focus plan
+              Rādīt plānu kartē
             </button>
           </div>
 
@@ -61,13 +106,13 @@
               />
 
               <l-marker
-                v-for="place in places"
+                v-for="place in filteredPlaces"
                 :key="'place-' + place.id"
                 :lat-lng="getPlaceCoordinates(place)"
               >
                 <l-popup>
                   <strong>{{ place.name }}</strong><br />
-                  {{ place.type }}
+                  {{ translateType(place.type) }}
                 </l-popup>
               </l-marker>
 
@@ -78,7 +123,7 @@
               >
                 <l-popup>
                   <strong>⭐ {{ item.name }}</strong><br />
-                  Added to your plan
+                  Pievienots ceļojuma plānam
                 </l-popup>
               </l-marker>
             </l-map>
@@ -87,16 +132,30 @@
       </section>
 
       <aside class="panel plan-panel">
-        <h2>My Plan</h2>
+        <h2>Mans plāns</h2>
+
+        <label class="label">Plāna nosaukums</label>
+        <input
+          v-model="planTitle"
+          class="input"
+          type="text"
+          placeholder="Ievadi plāna nosaukumu"
+        />
 
         <div v-if="plan.length === 0" class="empty">
-          Your travel plan is empty.
+          Tavs ceļojuma plāns ir tukšs.
         </div>
 
         <ul class="plan-list">
           <li v-for="item in plan" :key="item.id">
-            <span>{{ item.name }}</span>
-            <small>{{ item.type }}</small>
+            <div>
+              <span>{{ item.name }}</span>
+              <small>{{ translateType(item.type) }}</small>
+            </div>
+
+            <button class="remove-btn" @click="removeFromPlan(item.id)">
+              Noņemt
+            </button>
           </li>
         </ul>
 
@@ -105,7 +164,7 @@
           :disabled="plan.length === 0"
           @click="savePlan"
         >
-          Save trip plan
+          Saglabāt plānu
         </button>
 
         <p v-if="saveMessage" class="success">
@@ -113,14 +172,15 @@
         </p>
 
         <div class="saved-header">
-          <h2>Saved Plans</h2>
+          <h2>Saglabātie plāni</h2>
+
           <button class="small-btn" @click="loadSavedPlans">
-            Refresh
+            Atjaunot
           </button>
         </div>
 
         <div v-if="savedPlans.length === 0" class="empty">
-          No saved plans yet.
+          Saglabātu plānu vēl nav.
         </div>
 
         <div class="saved-plans">
@@ -132,11 +192,11 @@
 
             <div class="saved-actions">
               <button class="small-btn" @click="loadPlan(savedPlan)">
-                Load
+                Ielādēt
               </button>
 
               <button class="small-btn danger-btn" @click="deletePlan(savedPlan.id)">
-                Delete
+                Dzēst
               </button>
             </div>
           </div>
@@ -161,8 +221,14 @@ const cities = ref([])
 const places = ref([])
 const plan = ref([])
 const savedPlans = ref([])
+
 const selectedCity = ref('')
+const selectedType = ref('all')
+const sortType = ref('default')
+const searchText = ref('')
 const saveMessage = ref('')
+const planTitle = ref('Mans ceļojuma plāns')
+
 const mapRef = ref(null)
 
 const cityCoordinates = {
@@ -202,6 +268,32 @@ const mapZoom = computed(() => {
   return selectedCity.value ? 12 : 5
 })
 
+const filteredPlaces = computed(() => {
+  let result = [...places.value]
+
+  if (selectedType.value !== 'all') {
+    result = result.filter((place) => place.type === selectedType.value)
+  }
+
+  if (searchText.value.trim() !== '') {
+    const search = searchText.value.toLowerCase()
+
+    result = result.filter((place) =>
+      place.name.toLowerCase().includes(search)
+    )
+  }
+
+  if (sortType.value === 'az') {
+    result.sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  if (sortType.value === 'za') {
+    result.sort((a, b) => b.name.localeCompare(a.name))
+  }
+
+  return result
+})
+
 onMounted(async () => {
   await loadCities()
   await loadSavedPlans()
@@ -218,6 +310,21 @@ const loadPlaces = async () => {
   )
 
   places.value = await res.json()
+  searchText.value = ''
+  selectedType.value = 'all'
+  sortType.value = 'default'
+}
+
+const translateType = (type) => {
+  if (type === 'hotel') return 'Viesnīca'
+  if (type === 'restaurant') return 'Restorāns'
+  if (type === 'museum') return 'Muzejs'
+
+  return type
+}
+
+const countByType = (type) => {
+  return places.value.filter((place) => place.type === type).length
 }
 
 const getPlaceCoordinates = (place) => {
@@ -235,8 +342,7 @@ const focusMapOnPlace = (place) => {
 const focusPlan = () => {
   if (plan.value.length === 0) return
 
-  const firstPlace = plan.value[0]
-  focusMapOnPlace(firstPlace)
+  focusMapOnPlace(plan.value[0])
 }
 
 const addToPlan = (place) => {
@@ -246,11 +352,16 @@ const addToPlan = (place) => {
   }
 }
 
+const removeFromPlan = (placeId) => {
+  plan.value = plan.value.filter((item) => item.id !== placeId)
+  saveMessage.value = 'Vieta noņemta no plāna'
+}
+
 const savePlan = async () => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    saveMessage.value = 'Please login before saving your trip plan'
+    saveMessage.value = 'Lūdzu, pieslēdzies pirms plāna saglabāšanas'
     return
   }
 
@@ -261,7 +372,7 @@ const savePlan = async () => {
       'Authorization': 'Bearer ' + token
     },
     body: JSON.stringify({
-      title: 'My travel plan',
+      title: planTitle.value || 'Mans ceļojuma plāns',
       places: plan.value
     })
   })
@@ -269,11 +380,11 @@ const savePlan = async () => {
   const data = await res.json()
 
   if (!res.ok) {
-    saveMessage.value = data.message || 'Error while saving plan'
+    saveMessage.value = data.message || 'Kļūda saglabājot plānu'
     return
   }
 
-  saveMessage.value = data.message
+  saveMessage.value = 'Ceļojuma plāns saglabāts'
   await loadSavedPlans()
 }
 
@@ -302,13 +413,14 @@ const loadSavedPlans = async () => {
 const loadPlan = (savedPlan) => {
   try {
     plan.value = JSON.parse(savedPlan.places)
-    saveMessage.value = 'Plan loaded'
+    planTitle.value = savedPlan.title
+    saveMessage.value = 'Plāns ielādēts'
 
     if (plan.value.length > 0) {
       focusMapOnPlace(plan.value[0])
     }
   } catch (error) {
-    saveMessage.value = 'Could not load plan'
+    saveMessage.value = 'Neizdevās ielādēt plānu'
   }
 }
 
@@ -316,7 +428,7 @@ const deletePlan = async (planId) => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    saveMessage.value = 'Please login before deleting a trip plan'
+    saveMessage.value = 'Lūdzu, pieslēdzies pirms plāna dzēšanas'
     return
   }
 
@@ -330,11 +442,11 @@ const deletePlan = async (planId) => {
   const data = await res.json()
 
   if (!res.ok) {
-    saveMessage.value = data.message || 'Error while deleting plan'
+    saveMessage.value = data.message || 'Kļūda dzēšot plānu'
     return
   }
 
-  saveMessage.value = data.message
+  saveMessage.value = 'Plāns izdzēsts'
   await loadSavedPlans()
 }
 
@@ -403,7 +515,8 @@ h1 {
   font-size: 14px;
 }
 
-.select {
+.select,
+.input {
   width: 100%;
   padding: 14px 16px;
   border-radius: 14px;
@@ -411,7 +524,55 @@ h1 {
   background: #101223;
   color: white;
   font-size: 16px;
+}
+
+.select {
   margin-bottom: 28px;
+}
+
+.input {
+  margin-bottom: 16px;
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: 1fr 220px 220px;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.tools .select,
+.tools .input {
+  margin-bottom: 0;
+}
+
+.small-select {
+  min-width: 180px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: rgba(15, 16, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.stat-card span {
+  color: #aeb8ff;
+  font-size: 13px;
 }
 
 h2 {
@@ -451,7 +612,8 @@ h2 {
 
 .btn,
 .save-btn,
-.small-btn {
+.small-btn,
+.remove-btn {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
@@ -463,7 +625,8 @@ h2 {
 
 .btn:hover,
 .save-btn:hover,
-.small-btn:hover {
+.small-btn:hover,
+.remove-btn:hover {
   opacity: 0.9;
 }
 
@@ -475,6 +638,12 @@ h2 {
 .small-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.remove-btn {
+  padding: 8px 10px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .danger-btn {
@@ -519,13 +688,16 @@ h2 {
 .plan-list li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding: 14px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .plan-list small {
+  display: block;
   color: #9ba5d9;
+  margin-top: 4px;
 }
 
 .empty {
@@ -589,6 +761,16 @@ h2 {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+@media (max-width: 1100px) {
+  .tools {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 900px) {
