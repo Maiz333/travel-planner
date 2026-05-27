@@ -13,26 +13,44 @@
         Ievadi savu e-pastu un paroli, lai turpinātu ceļojuma plānošanu.
       </p>
 
-      <input
-        v-model="email"
-        class="input"
-        type="email"
-        placeholder="E-pasts"
-      />
+      <div class="form-group">
+        <label>E-pasts</label>
+        <input
+          v-model.trim="email"
+          class="input"
+          type="email"
+          placeholder="piemers@email.com"
+          autocomplete="email"
+          @keyup.enter="login"
+        />
+      </div>
 
-      <input
-        v-model="password"
-        class="input"
-        type="password"
-        placeholder="Parole"
-      />
+      <div class="form-group">
+        <label>Parole</label>
+        <input
+          v-model="password"
+          class="input"
+          type="password"
+          placeholder="Ievadi paroli"
+          autocomplete="current-password"
+          @keyup.enter="login"
+        />
+      </div>
 
-      <button class="main-btn" @click="login">
-        Pieslēgties
+      <button
+        class="main-btn"
+        :disabled="isLoading"
+        @click="login"
+      >
+        {{ isLoading ? 'Pieslēdzas...' : 'Pieslēgties' }}
       </button>
 
       <p v-if="message" class="error">
         {{ message }}
+      </p>
+
+      <p v-if="successMessage" class="success">
+        {{ successMessage }}
       </p>
 
       <p class="bottom-text">
@@ -54,7 +72,9 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const message = ref('')
+const successMessage = ref('')
 const currentTheme = ref('dark')
+const isLoading = ref(false)
 
 const applyTheme = (theme) => {
   document.body.classList.remove('dark', 'light')
@@ -73,13 +93,27 @@ const toggleTheme = () => {
   applyTheme(currentTheme.value)
 }
 
+const isValidEmail = (value) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
 const login = async () => {
   message.value = ''
+  successMessage.value = ''
+
+  if (isLoading.value) return
 
   if (!email.value || !password.value) {
     message.value = 'Ievadi e-pastu un paroli'
     return
   }
+
+  if (!isValidEmail(email.value)) {
+    message.value = 'Ievadi korektu e-pasta adresi'
+    return
+  }
+
+  isLoading.value = true
 
   try {
     const response = await fetch('http://127.0.0.1:8000/api/login', {
@@ -93,17 +127,49 @@ const login = async () => {
       })
     })
 
-    const data = await response.json()
+    let data = {}
+
+    try {
+      data = await response.json()
+    } catch {
+      data = {}
+    }
 
     if (!response.ok) {
-      message.value = 'Nepareizs e-pasts vai parole'
+      if (response.status === 401) {
+        message.value = 'Nepareizs e-pasts vai parole'
+        return
+      }
+
+      if (data.errors?.email) {
+        message.value = data.errors.email[0]
+        return
+      }
+
+      if (data.errors?.password) {
+        message.value = data.errors.password[0]
+        return
+      }
+
+      message.value = data.message || 'Pieslēgšanās neizdevās'
+      return
+    }
+
+    if (!data.token) {
+      message.value = 'Serveris neatgrieza autorizācijas tokenu'
       return
     }
 
     localStorage.setItem('token', data.token)
-    router.push('/home')
+    successMessage.value = 'Pieslēgšanās veiksmīga'
+
+    setTimeout(() => {
+      router.push('/home')
+    }, 350)
   } catch (error) {
-    message.value = 'Backend nav pieejams'
+    message.value = 'Backend nav pieejams. Pārbaudi, vai Laravel serveris ir ieslēgts.'
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -137,7 +203,7 @@ const login = async () => {
 
 .auth-card {
   width: 100%;
-  max-width: 460px;
+  max-width: 470px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 28px;
@@ -165,15 +231,32 @@ h1 {
   margin-bottom: 26px;
 }
 
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #8ea0ff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .input {
   width: 100%;
   padding: 15px 16px;
-  margin-bottom: 14px;
   border-radius: 15px;
   border: 1px solid var(--border-color);
   background: var(--input-bg);
   color: var(--text-main);
   font-size: 16px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #8b7dff;
+  box-shadow: 0 0 0 4px rgba(139, 125, 255, 0.16);
 }
 
 .input::placeholder {
@@ -190,12 +273,33 @@ h1 {
   font-weight: 800;
   cursor: pointer;
   font-size: 16px;
+  margin-top: 4px;
+}
+
+.main-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error,
+.success {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 800;
+  margin-top: 16px;
+  line-height: 1.4;
 }
 
 .error {
   color: #ff5d7d;
-  font-weight: 800;
-  margin-top: 16px;
+  background: rgba(255, 93, 125, 0.12);
+  border: 1px solid rgba(255, 93, 125, 0.25);
+}
+
+.success {
+  color: #20c997;
+  background: rgba(32, 201, 151, 0.12);
+  border: 1px solid rgba(32, 201, 151, 0.25);
 }
 
 .bottom-text {
@@ -208,5 +312,29 @@ h1 {
   color: #7b68ff;
   font-weight: 800;
   text-decoration: none;
+}
+
+.bottom-text a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .auth-page {
+    padding: 20px;
+  }
+
+  .theme-toggle {
+    top: 18px;
+    right: 18px;
+  }
+
+  .auth-card {
+    padding: 26px;
+    border-radius: 24px;
+  }
+
+  h1 {
+    font-size: 31px;
+  }
 }
 </style>
