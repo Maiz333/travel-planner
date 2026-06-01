@@ -213,7 +213,16 @@
       </section>
 
       <aside class="panel plan-panel">
-        <h2>Mans plāns</h2>
+        <div class="plan-title-row">
+          <h2>Mans plāns</h2>
+
+          <span
+            v-if="editingPlanId"
+            class="editing-badge"
+          >
+            Rediģēšana
+          </span>
+        </div>
 
         <label class="label">
           Plāna nosaukums
@@ -225,6 +234,13 @@
           type="text"
           placeholder="Ievadi plāna nosaukumu"
         />
+
+        <p
+          v-if="editingPlanId"
+          class="edit-note"
+        >
+          Tu rediģē saglabātu plānu. Vari mainīt nosaukumu, pievienot vai noņemt vietas un nospiest “Atjaunināt plānu”.
+        </p>
 
         <div
           v-if="plan.length === 0"
@@ -256,13 +272,33 @@
           </li>
         </ul>
 
-        <button
-          class="save-btn"
-          :disabled="plan.length === 0"
-          @click="savePlan"
-        >
-          Saglabāt plānu
-        </button>
+        <div class="plan-actions">
+          <button
+            v-if="!editingPlanId"
+            class="save-btn"
+            :disabled="plan.length === 0"
+            @click="savePlan"
+          >
+            Saglabāt plānu
+          </button>
+
+          <button
+            v-if="editingPlanId"
+            class="save-btn"
+            :disabled="plan.length === 0"
+            @click="updatePlan"
+          >
+            Atjaunināt plānu
+          </button>
+
+          <button
+            v-if="editingPlanId"
+            class="secondary-btn"
+            @click="resetCurrentPlan"
+          >
+            Jauns plāns
+          </button>
+        </div>
 
         <p
           v-if="saveMessage"
@@ -294,6 +330,7 @@
             v-for="savedPlan in savedPlans"
             :key="savedPlan.id"
             class="saved-card"
+            :class="{ active: editingPlanId === savedPlan.id }"
           >
             <div>
               <h3>{{ savedPlan.title }}</h3>
@@ -355,6 +392,7 @@ const sortType = ref('default')
 const searchText = ref('')
 const saveMessage = ref('')
 const planTitle = ref('Mans ceļojuma plāns')
+const editingPlanId = ref(null)
 
 const mapRef = ref(null)
 
@@ -635,6 +673,13 @@ const removeFromPlan = (placeId) => {
     'Vieta noņemta no plāna'
 }
 
+const resetCurrentPlan = () => {
+  plan.value = []
+  planTitle.value = 'Mans ceļojuma plāns'
+  editingPlanId.value = null
+  saveMessage.value = 'Izveidots jauns tukšs plāns'
+}
+
 const savePlan = async () => {
   const token = localStorage.getItem('token')
 
@@ -681,6 +726,59 @@ const savePlan = async () => {
   await loadSavedPlans()
 }
 
+const updatePlan = async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    saveMessage.value =
+      'Lūdzu, pieslēdzies pirms plāna atjaunināšanas'
+
+    return
+  }
+
+  if (!editingPlanId.value) {
+    saveMessage.value =
+      'Nav izvēlēts saglabāts plāns rediģēšanai'
+
+    return
+  }
+
+  const res = await fetch(
+    `http://127.0.0.1:8000/api/plans/${editingPlanId.value}`,
+    {
+      method: 'PUT',
+
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+
+      body: JSON.stringify({
+        title:
+          planTitle.value ||
+          'Mans ceļojuma plāns',
+
+        places: plan.value
+      })
+    }
+  )
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    saveMessage.value =
+      data.message ||
+      'Kļūda atjauninot plānu'
+
+    return
+  }
+
+  saveMessage.value =
+    'Ceļojuma plāns atjaunināts'
+
+  await loadSavedPlans()
+}
+
 const loadSavedPlans = async () => {
   const token = localStorage.getItem('token')
 
@@ -713,8 +811,9 @@ const loadPlan = (savedPlan) => {
     plan.value = JSON.parse(savedPlan.places)
 
     planTitle.value = savedPlan.title
+    editingPlanId.value = savedPlan.id
 
-    saveMessage.value = 'Plāns ielādēts'
+    saveMessage.value = 'Plāns ielādēts rediģēšanai'
 
     if (plan.value.length > 0) {
       focusPlan()
@@ -754,6 +853,10 @@ const deletePlan = async (planId) => {
       'Kļūda dzēšot plānu'
 
     return
+  }
+
+  if (editingPlanId.value === planId) {
+    resetCurrentPlan()
   }
 
   saveMessage.value = 'Plāns izdzēsts'
@@ -954,7 +1057,8 @@ h2 {
 .save-btn,
 .small-btn,
 .remove-btn,
-.popup-btn {
+.popup-btn,
+.secondary-btn {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
@@ -971,7 +1075,8 @@ h2 {
 .btn:hover,
 .save-btn:hover,
 .small-btn:hover,
-.remove-btn:hover {
+.remove-btn:hover,
+.secondary-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
 }
@@ -998,6 +1103,12 @@ h2 {
     #ff4d6d,
     #ff758f
   );
+}
+
+.secondary-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .map-section {
@@ -1033,6 +1144,34 @@ h2 {
   position: sticky;
   top: 108px;
   height: fit-content;
+}
+
+.plan-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.editing-badge {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(32, 201, 151, 0.16);
+  color: #20c997;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.edit-note {
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 16px;
+  font-size: 14px;
+}
+
+.plan-actions {
+  margin-top: 10px;
 }
 
 .plan-list {
@@ -1102,6 +1241,11 @@ h2 {
   border-radius: 16px;
   padding: 16px;
   background: var(--card-bg);
+}
+
+.saved-card.active {
+  border-color: #20c997;
+  box-shadow: 0 0 0 2px rgba(32, 201, 151, 0.18);
 }
 
 .saved-card h3 {

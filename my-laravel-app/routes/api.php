@@ -572,6 +572,33 @@ Route::post('/plans', function (Request $request) {
     return ['message' => 'Trip plan saved'];
 })->middleware('auth:sanctum');
 
+// UPDATE PLAN
+Route::put('/plans/{id}', function ($id, Request $request) {
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'places' => 'required|array',
+    ]);
+
+    $updated = DB::table('plans')
+        ->where('id', $id)
+        ->where('user_id', $request->user()->id)
+        ->update([
+            'title' => $request->title,
+            'places' => json_encode($request->places),
+            'updated_at' => now()
+        ]);
+
+    if (!$updated) {
+        return response()->json([
+            'message' => 'Plan not found or access denied'
+        ], 404);
+    }
+
+    return response()->json([
+        'message' => 'Trip plan updated'
+    ]);
+})->middleware('auth:sanctum');
+
 // GET MY PLANS
 Route::get('/my-plans', function (Request $request) {
     return DB::table('plans')
