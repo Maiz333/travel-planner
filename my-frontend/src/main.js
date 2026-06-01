@@ -2,12 +2,20 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+const app = createApp(App)
 
-const vuetify = createVuetify()
+app.use(router)
+app.mount('#app')
 
-createApp(App)
-  .use(router)
-  .use(vuetify)
-  .mount('#app')
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => {
+        console.log('Service Worker registered')
+      })
+      .catch((error) => {
+        console.error('Service Worker registration failed:', error)
+      })
+  })
+}

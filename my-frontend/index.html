@@ -1,13 +1,29 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="lv">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6a5aff" />
+    <meta name="description" content="Ceļojumu plānošanas lietotne ar pilsētām, vietām, karti un saglabātiem plāniem." />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Travel App" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <title>Travel App — Ceļojumu plānotājs</title>
   </head>
-  <body>
+
+  <body class="dark">
+    <noscript>
+      Lai izmantotu šo lietotni, pārlūkprogrammā jābūt ieslēgtam JavaScript.
+    </noscript>
+
     <div id="app"></div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Travel App — Ceļojumu plānotājs",
+  "short_name": "Travel App",
+  "description": "Ceļojumu plānošanas lietotne ar pilsētām, vietām, karti un saglabātiem plāniem.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f1020",
+  "theme_color": "#6a5aff",
+  "categories": ["travel", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
