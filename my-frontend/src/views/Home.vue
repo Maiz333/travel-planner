@@ -381,6 +381,8 @@ import {
   LPolyline
 } from '@vue-leaflet/vue-leaflet'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+
 const cities = ref([])
 const places = ref([])
 const plan = ref([])
@@ -574,17 +576,13 @@ onMounted(async () => {
 })
 
 const loadCities = async () => {
-  const res = await fetch(
-    'http://127.0.0.1:8000/api/cities'
-  )
+  const res = await fetch(`${API_URL}/cities`)
 
   cities.value = await res.json()
 }
 
 const loadPlaces = async () => {
-  const res = await fetch(
-    `http://127.0.0.1:8000/api/places/${selectedCity.value}`
-  )
+  const res = await fetch(`${API_URL}/places/${selectedCity.value}`)
 
   places.value = await res.json()
 
@@ -690,25 +688,22 @@ const savePlan = async () => {
     return
   }
 
-  const res = await fetch(
-    'http://127.0.0.1:8000/api/plans',
-    {
-      method: 'POST',
+  const res = await fetch(`${API_URL}/plans`, {
+    method: 'POST',
 
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token
-      },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token
+    },
 
-      body: JSON.stringify({
-        title:
-          planTitle.value ||
-          'Mans ceļojuma plāns',
+    body: JSON.stringify({
+      title:
+        planTitle.value ||
+        'Mans ceļojuma plāns',
 
-        places: plan.value
-      })
-    }
-  )
+      places: plan.value
+    })
+  })
 
   const data = await res.json()
 
@@ -743,25 +738,22 @@ const updatePlan = async () => {
     return
   }
 
-  const res = await fetch(
-    `http://127.0.0.1:8000/api/plans/${editingPlanId.value}`,
-    {
-      method: 'PUT',
+  const res = await fetch(`${API_URL}/plans/${editingPlanId.value}`, {
+    method: 'PUT',
 
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token
-      },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token
+    },
 
-      body: JSON.stringify({
-        title:
-          planTitle.value ||
-          'Mans ceļojuma plāns',
+    body: JSON.stringify({
+      title:
+        planTitle.value ||
+        'Mans ceļojuma plāns',
 
-        places: plan.value
-      })
-    }
-  )
+      places: plan.value
+    })
+  })
 
   const data = await res.json()
 
@@ -788,14 +780,11 @@ const loadSavedPlans = async () => {
     return
   }
 
-  const res = await fetch(
-    'http://127.0.0.1:8000/api/my-plans',
-    {
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
+  const res = await fetch(`${API_URL}/my-plans`, {
+    headers: {
+      Authorization: 'Bearer ' + token
     }
-  )
+  })
 
   if (!res.ok) {
     savedPlans.value = []
@@ -834,16 +823,13 @@ const deletePlan = async (planId) => {
     return
   }
 
-  const res = await fetch(
-    `http://127.0.0.1:8000/api/plans/${planId}`,
-    {
-      method: 'DELETE',
+  const res = await fetch(`${API_URL}/plans/${planId}`, {
+    method: 'DELETE',
 
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
+    headers: {
+      Authorization: 'Bearer ' + token
     }
-  )
+  })
 
   const data = await res.json()
 

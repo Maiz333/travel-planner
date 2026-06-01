@@ -151,6 +151,8 @@ import Navbar from '../components/Navbar.vue'
 
 const router = useRouter()
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+
 const isLoading = ref(true)
 const message = ref('')
 
@@ -178,7 +180,7 @@ const loadAdminStats = async () => {
   }
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/admin/stats', {
+    const res = await fetch(`${API_URL}/admin/stats`, {
       headers: {
         Authorization: 'Bearer ' + token
       }

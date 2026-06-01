@@ -43,6 +43,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+
 const currentTheme = ref('dark')
 const isAdmin = ref(false)
 
@@ -74,7 +76,7 @@ const loadUser = async () => {
   }
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/user', {
+    const res = await fetch(`${API_URL}/user`, {
       headers: {
         Authorization: 'Bearer ' + token
       }

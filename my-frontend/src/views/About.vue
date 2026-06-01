@@ -3,153 +3,133 @@
 
   <div class="page">
     <section class="hero">
-      <p class="eyebrow">Par projektu</p>
+      <div>
+        <p class="eyebrow">Par projektu</p>
 
-      <h1>Ceļojumu plānotājs</h1>
+        <h1>Ceļojumu plānotājs</h1>
 
-      <p class="subtitle">
-        Tīmekļa lietotne ceļojumu plānošanai, kurā lietotājs var izvēlēties pilsētu,
-        apskatīt vietas, izmantot karti un saglabāt savu ceļojuma plānu.
-      </p>
+        <p class="subtitle">
+          Tīmekļa lietotne ceļojumu plānošanai ar pilsētām, vietām,
+          interaktīvu karti, saglabātiem plāniem un administratora paneli.
+        </p>
+
+        <div class="hero-actions">
+          <router-link to="/home" class="primary-link">
+            Sākt plānot
+          </router-link>
+
+          <router-link to="/saved-plans" class="secondary-link">
+            Skatīt plānus
+          </router-link>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-icon">✈️</div>
+
+        <h2>Travel App</h2>
+
+        <p>
+          Izvēlies pilsētu, atrodi interesantas vietas un izveido savu
+          ceļojuma maršrutu vienā vietā.
+        </p>
+      </div>
     </section>
 
-    <section class="summary-grid">
-      <div class="summary-card">
-        <span class="summary-icon">🌍</span>
-        <strong>6</strong>
-        <p>Pilsētas</p>
+    <section class="features">
+      <div class="feature-card">
+        <span class="feature-icon">🌍</span>
+        <h3>Pilsētas</h3>
+        <p>Izvēlies kādu no populārām ceļojumu pilsētām.</p>
       </div>
 
-      <div class="summary-card">
-        <span class="summary-icon">📍</span>
-        <strong>54</strong>
-        <p>Ceļojuma vietas</p>
+      <div class="feature-card">
+        <span class="feature-icon">🏨</span>
+        <h3>Vietas</h3>
+        <p>Apskati viesnīcas, restorānus un muzejus pēc pilsētas.</p>
       </div>
 
-      <div class="summary-card">
-        <span class="summary-icon">🗺️</span>
-        <strong>Leaflet</strong>
-        <p>Interaktīva karte</p>
+      <div class="feature-card">
+        <span class="feature-icon">🗺️</span>
+        <h3>Karte</h3>
+        <p>Skaties vietas kartē un redzi maršruta līniju starp izvēlētajām vietām.</p>
       </div>
 
-      <div class="summary-card">
-        <span class="summary-icon">🔐</span>
-        <strong>Sanctum</strong>
-        <p>Autorizācija</p>
+      <div class="feature-card">
+        <span class="feature-icon">💾</span>
+        <h3>Plāni</h3>
+        <p>Saglabā, ielādē, rediģē un dzēs savus ceļojuma plānus.</p>
       </div>
     </section>
 
     <section class="grid">
-      <article class="card large-card">
-        <div class="card-header">
-          <span class="icon">🎯</span>
-          <h2>Projekta mērķis</h2>
-        </div>
+      <div class="info-card">
+        <h2>Projekta mērķis</h2>
 
         <p>
-          Projekta mērķis ir izveidot lietotājam draudzīgu ceļojumu plānošanas sistēmu,
-          kurā iespējams izvēlēties pilsētu, apskatīt viesnīcas, restorānus un muzejus,
-          pievienot izvēlētās vietas savam plānam un saglabāt šo plānu savā kontā.
+          Projekta mērķis ir izveidot lietotājam draudzīgu sistēmu,
+          kurā var izvēlēties pilsētu, apskatīt viesnīcas, restorānus
+          un muzejus, kā arī saglabāt savu ceļojuma plānu.
         </p>
-      </article>
+      </div>
 
-      <article class="card">
-        <div class="card-header">
-          <span class="icon">⚙️</span>
-          <h2>Galvenās funkcijas</h2>
-        </div>
+      <div class="info-card">
+        <h2>Galvenās funkcijas</h2>
 
         <ul>
-          <li>Reģistrācija un pieslēgšanās sistēmā</li>
+          <li>Reģistrācija un pieslēgšanās</li>
           <li>Pilsētu un vietu apskate</li>
-          <li>Meklēšana pēc vietas nosaukuma</li>
-          <li>Filtrēšana pēc vietas tipa</li>
-          <li>Kārtošana pēc nosaukuma vai reitinga</li>
-          <li>Vietu pievienošana ceļojuma plānam</li>
-          <li>Saglabāto plānu apskate un dzēšana</li>
+          <li>Meklēšana, filtrēšana un kārtošana</li>
+          <li>Interaktīva karte</li>
+          <li>Ceļojuma plāna saglabāšana, rediģēšana un dzēšana</li>
+          <li>Administratora panelis</li>
         </ul>
-      </article>
+      </div>
 
-      <article class="card">
-        <div class="card-header">
-          <span class="icon">🧩</span>
-          <h2>Tehnoloģijas</h2>
+      <div class="info-card">
+        <h2>Tehnoloģijas</h2>
+
+        <div class="tech-list">
+          <span>Vue.js</span>
+          <span>Vite</span>
+          <span>Vue Router</span>
+          <span>Laravel</span>
+          <span>Laravel Sanctum</span>
+          <span>SQLite</span>
+          <span>Leaflet</span>
+          <span>REST API</span>
         </div>
-
-        <ul>
-          <li>Vue.js frontend daļai</li>
-          <li>Vue Router lapu navigācijai</li>
-          <li>Laravel backend API daļai</li>
-          <li>SQLite datu bāzei</li>
-          <li>Laravel Sanctum autorizācijai</li>
-          <li>Leaflet interaktīvai kartei</li>
-        </ul>
-      </article>
+      </div>
     </section>
 
-    <section class="details-grid">
-      <article class="panel info-panel">
-        <div class="card-header">
-          <span class="icon">🗂️</span>
-          <h2>Projekta struktūra</h2>
+    <section class="workflow-card">
+      <div>
+        <p class="eyebrow">Lietošana</p>
+
+        <h2>Kā darbojas lietotne?</h2>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <strong>1</strong>
+          <span>Izveido kontu vai pieslēdzies</span>
         </div>
 
-        <div class="structure-list">
-          <div class="structure-item">
-            <strong>Frontend</strong>
-            <span>Vue.js lietotāja saskarne ar lapām Home, SavedPlans, About, Login un Register.</span>
-          </div>
-
-          <div class="structure-item">
-            <strong>Backend</strong>
-            <span>Laravel API nodrošina pilsētu, vietu, lietotāju un ceļojumu plānu apstrādi.</span>
-          </div>
-
-          <div class="structure-item">
-            <strong>Datu bāze</strong>
-            <span>SQLite saglabā lietotājus, pilsētas, vietas un saglabātos ceļojuma plānus.</span>
-          </div>
-
-          <div class="structure-item">
-            <strong>Autorizācija</strong>
-            <span>Laravel Sanctum tiek izmantots lietotāju reģistrācijai, pieslēgšanai un drošai API piekļuvei.</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="panel info-panel">
-        <div class="card-header">
-          <span class="icon">🚀</span>
-          <h2>Lietotāja iespējas</h2>
+        <div class="step">
+          <strong>2</strong>
+          <span>Izvēlies pilsētu un apskati vietas</span>
         </div>
 
-        <div class="feature-list">
-          <div class="feature-item">
-            <span>01</span>
-            <p>Izvēlēties pilsētu no pieejamā saraksta.</p>
-          </div>
-
-          <div class="feature-item">
-            <span>02</span>
-            <p>Apskatīt viesnīcas, restorānus un muzejus ar aprakstiem, attēliem un reitingiem.</p>
-          </div>
-
-          <div class="feature-item">
-            <span>03</span>
-            <p>Pievienot interesējošās vietas savam ceļojuma plānam.</p>
-          </div>
-
-          <div class="feature-item">
-            <span>04</span>
-            <p>Redzēt izvēlētās vietas kartē un maršruta līniju starp tām.</p>
-          </div>
-
-          <div class="feature-item">
-            <span>05</span>
-            <p>Saglabāt plānu savā kontā un apskatīt to vēlāk.</p>
-          </div>
+        <div class="step">
+          <strong>3</strong>
+          <span>Pievieno vietas savam plānam</span>
         </div>
-      </article>
+
+        <div class="step">
+          <strong>4</strong>
+          <span>Saglabā vai rediģē ceļojuma plānu</span>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -166,8 +146,11 @@ import Navbar from '../components/Navbar.vue'
 }
 
 .hero {
-  max-width: 1000px;
-  margin-bottom: 34px;
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 26px;
+  align-items: stretch;
+  margin-bottom: 26px;
 }
 
 .eyebrow {
@@ -175,180 +158,211 @@ import Navbar from '../components/Navbar.vue'
   text-transform: uppercase;
   letter-spacing: 3px;
   font-size: 13px;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
 h1 {
-  font-size: 54px;
+  font-size: 58px;
   margin: 0;
   line-height: 1.05;
 }
 
 .subtitle {
+  color: var(--text-muted);
   font-size: 18px;
+  line-height: 1.6;
   max-width: 820px;
   margin-top: 18px;
-  line-height: 1.6;
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 24px;
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
 }
 
-.summary-card {
-  border: 1px solid var(--border-color);
-  border-radius: 22px;
-  padding: 22px;
+.primary-link,
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 15px;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.primary-link {
+  color: white;
+  background: linear-gradient(135deg, #6a5aff, #8b7dff);
+}
+
+.secondary-link {
+  color: var(--text-main);
   background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+.hero-card,
+.info-card,
+.feature-card,
+.workflow-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
   box-shadow: var(--shadow);
 }
 
-.summary-icon {
+.hero-card {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: rgba(142, 160, 255, 0.18);
+  font-size: 30px;
+  margin-bottom: 18px;
+}
+
+.hero-card h2 {
+  margin: 0 0 12px;
+  font-size: 30px;
+}
+
+.hero-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.feature-card {
+  padding: 22px;
+}
+
+.feature-icon {
   display: block;
-  font-size: 24px;
+  font-size: 28px;
   margin-bottom: 14px;
 }
 
-.summary-card strong {
-  display: block;
-  font-size: 28px;
-  margin-bottom: 6px;
+.feature-card h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
 }
 
-.summary-card p {
-  margin: 0;
+.feature-card p {
   color: var(--text-muted);
-  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 22px;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
-.card,
-.panel {
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
+.info-card {
   padding: 26px;
-  background: var(--card-bg);
-  box-shadow: var(--shadow);
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: rgba(142, 160, 255, 0.18);
-  font-size: 20px;
-}
-
-.card h2,
-.panel h2 {
-  margin: 0;
+.info-card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
   font-size: 24px;
 }
 
-.card p,
-.card li,
-.panel p,
-.structure-item span {
+.info-card p,
+.info-card li {
   color: var(--text-muted);
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
-.card ul {
+.info-card ul {
   margin: 0;
-  padding-left: 22px;
+  padding-left: 20px;
 }
 
-.card li {
-  margin-bottom: 8px;
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-
-.structure-list {
-  display: grid;
-  gap: 14px;
-}
-
-.structure-item {
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  background: var(--card-bg-strong);
-}
-
-.structure-item strong {
-  display: block;
-  margin-bottom: 8px;
+.tech-list span {
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(142, 160, 255, 0.18);
   color: #8ea0ff;
-}
-
-.feature-list {
-  display: grid;
-  gap: 14px;
-}
-
-.feature-item {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 14px;
-  align-items: start;
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  background: var(--card-bg-strong);
-}
-
-.feature-item span {
-  width: 38px;
-  height: 38px;
-  border-radius: 13px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #6a5aff, #8b7dff);
-  color: white;
   font-weight: 900;
   font-size: 13px;
 }
 
-.feature-item p {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.55;
+.workflow-card {
+  padding: 28px;
 }
 
-@media (max-width: 1150px) {
-  .summary-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.workflow-card h2 {
+  margin: 0;
+  font-size: 30px;
+}
 
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.step {
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--card-bg-strong);
+}
+
+.step strong {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6a5aff, #8b7dff);
+  color: white;
+  margin-bottom: 12px;
+}
+
+.step span {
+  color: var(--text-muted);
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .hero,
   .grid {
     grid-template-columns: 1fr;
   }
 
-  .details-grid {
-    grid-template-columns: 1fr;
+  .features,
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -365,15 +379,18 @@ h1 {
     font-size: 16px;
   }
 
-  .summary-grid {
+  .features,
+  .steps {
     grid-template-columns: 1fr;
   }
 
-  .card,
-  .panel,
-  .summary-card {
-    padding: 20px;
-    border-radius: 20px;
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .primary-link,
+  .secondary-link {
+    width: 100%;
   }
 }
 
@@ -386,8 +403,12 @@ h1 {
     font-size: 32px;
   }
 
-  .feature-item {
-    grid-template-columns: 1fr;
+  .hero-card,
+  .info-card,
+  .feature-card,
+  .workflow-card {
+    padding: 20px;
+    border-radius: 20px;
   }
 }
 </style>

@@ -126,6 +126,8 @@
 import { ref, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+
 const savedPlans = ref([])
 const message = ref('')
 
@@ -149,7 +151,7 @@ const loadSavedPlans = async () => {
     return
   }
 
-  const res = await fetch('http://127.0.0.1:8000/api/my-plans', {
+  const res = await fetch(`${API_URL}/my-plans`, {
     headers: {
       Authorization: 'Bearer ' + token
     }
@@ -179,7 +181,7 @@ const deletePlan = async (planId) => {
     return
   }
 
-  const res = await fetch(`http://127.0.0.1:8000/api/plans/${planId}`, {
+  const res = await fetch(`${API_URL}/plans/${planId}`, {
     method: 'DELETE',
     headers: {
       Authorization: 'Bearer ' + token

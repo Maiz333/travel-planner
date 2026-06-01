@@ -82,7 +82,7 @@ body:not(.dark):not(.light) {
 .auth-page {
   background: var(--page-gradient) !important;
   color: var(--text-main) !important;
-  animation: pageFade 0.28s ease;
+  animation: pageFade 0.22s ease;
 }
 
 .panel,
@@ -91,7 +91,8 @@ body:not(.dark):not(.light) {
 .saved-card,
 .stat-card,
 .mini-stat,
-.place-card {
+.place-card,
+.info-card {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
   color: var(--text-main) !important;
@@ -113,7 +114,9 @@ body:not(.dark):not(.light) {
 .card p,
 .card li,
 .place-card p,
-.section-text {
+.section-text,
+.info-card p,
+.info-card li {
   color: var(--text-muted) !important;
 }
 
@@ -121,34 +124,22 @@ a,
 button,
 input,
 select {
-  transition: 0.2s ease;
-}
-
-.card,
-.saved-card,
-.stat-card,
-.panel,
-.place-card,
-.mini-stat {
   transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    border-color 0.22s ease,
-    background 0.22s ease;
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.card:hover,
-.saved-card:hover,
-.stat-card:hover,
-.place-card:hover,
-.mini-stat:hover {
-  transform: translateY(-3px);
+button:hover {
+  opacity: 0.92;
 }
 
 @keyframes pageFade {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
 
   to {
