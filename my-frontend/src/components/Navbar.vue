@@ -7,8 +7,22 @@
 
     <nav class="nav-links">
       <router-link to="/home">SĀKUMS</router-link>
-      <router-link to="/saved-plans">SAGLABĀTIE PLĀNI</router-link>
-      <router-link to="/about">PAR PROJEKTU</router-link>
+
+      <router-link to="/saved-plans">
+        SAGLABĀTIE PLĀNI
+      </router-link>
+
+      <router-link to="/about">
+        PAR PROJEKTU
+      </router-link>
+
+      <router-link
+        v-if="isAdmin"
+        to="/admin"
+        class="admin-link"
+      >
+        ADMIN
+      </router-link>
     </nav>
 
     <div class="actions">
@@ -28,7 +42,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
 const currentTheme = ref('dark')
+const isAdmin = ref(false)
 
 const applyTheme = (theme) => {
   document.body.classList.remove('dark', 'light')
@@ -39,6 +55,8 @@ onMounted(() => {
   const savedTheme = localStorage.getItem('theme') || 'dark'
   currentTheme.value = savedTheme
   applyTheme(savedTheme)
+
+  loadUser()
 })
 
 const toggleTheme = () => {
@@ -47,8 +65,36 @@ const toggleTheme = () => {
   applyTheme(currentTheme.value)
 }
 
+const loadUser = async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    isAdmin.value = false
+    return
+  }
+
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/user', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+
+    if (!res.ok) {
+      isAdmin.value = false
+      return
+    }
+
+    const data = await res.json()
+    isAdmin.value = data.user?.role === 'admin'
+  } catch (error) {
+    isAdmin.value = false
+  }
+}
+
 const logout = () => {
   localStorage.removeItem('token')
+  isAdmin.value = false
   router.push('/login')
 }
 </script>
@@ -77,6 +123,7 @@ const logout = () => {
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .logo-icon {
@@ -85,6 +132,7 @@ const logout = () => {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 30px;
 }
 
@@ -98,6 +146,13 @@ const logout = () => {
 .nav-links a:hover,
 .nav-links .router-link-active {
   color: #7b68ff;
+}
+
+.admin-link {
+  padding: 8px 13px !important;
+  border-radius: 999px;
+  background: rgba(32, 201, 151, 0.16);
+  color: #20c997 !important;
 }
 
 .actions {
@@ -128,7 +183,7 @@ const logout = () => {
   font-weight: 800;
 }
 
-@media (max-width: 850px) {
+@media (max-width: 1050px) {
   .navbar {
     height: auto;
     padding: 18px;
@@ -139,6 +194,37 @@ const logout = () => {
   .nav-links {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .nav-links a {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--card-bg);
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .theme-btn,
+  .logout-btn {
+    width: 100%;
+  }
+
+  .logo {
+    font-size: 20px;
   }
 }
 </style>

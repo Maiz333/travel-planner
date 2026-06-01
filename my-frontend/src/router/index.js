@@ -5,6 +5,7 @@ import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
 import SavedPlans from '../views/SavedPlans.vue'
 import About from '../views/About.vue'
+import Admin from '../views/Admin.vue'
 
 const routes = [
   {
@@ -32,6 +33,11 @@ const routes = [
   {
     path: '/about',
     component: About,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin',
+    component: Admin,
     meta: { requiresAuth: true }
   }
 ]

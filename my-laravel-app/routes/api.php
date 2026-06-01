@@ -68,6 +68,18 @@ Route::post('/logout', function (Request $request) {
     ]);
 })->middleware('auth:sanctum');
 
+// CURRENT USER
+Route::get('/user', function (Request $request) {
+    return response()->json([
+        'user' => [
+            'id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+            'role' => $request->user()->role ?? 'user',
+        ]
+    ]);
+})->middleware('auth:sanctum');
+
 // CITIES
 Route::get('/cities', function () {
     return DB::table('cities')->get();
@@ -576,4 +588,48 @@ Route::delete('/plans/{id}', function ($id, Request $request) {
         ->delete();
 
     return ['message' => 'Plan deleted'];
+})->middleware('auth:sanctum');
+
+// ADMIN STATS
+Route::get('/admin/stats', function (Request $request) {
+    if (($request->user()->role ?? 'user') !== 'admin') {
+        return response()->json([
+            'message' => 'Access denied'
+        ], 403);
+    }
+
+    $placesByType = DB::table('places')
+        ->select('type', DB::raw('COUNT(*) as total'))
+        ->groupBy('type')
+        ->get();
+
+    $placesByCity = DB::table('cities')
+        ->leftJoin('places', 'cities.id', '=', 'places.city_id')
+        ->select('cities.name as city', DB::raw('COUNT(places.id) as total'))
+        ->groupBy('cities.id', 'cities.name')
+        ->get();
+
+    $plansByUser = DB::table('users')
+        ->leftJoin('plans', 'users.id', '=', 'plans.user_id')
+        ->select(
+            'users.id',
+            'users.name',
+            'users.email',
+            'users.role',
+            DB::raw('COUNT(plans.id) as plans_count')
+        )
+        ->groupBy('users.id', 'users.name', 'users.email', 'users.role')
+        ->orderByDesc('plans_count')
+        ->get();
+
+    return response()->json([
+        'total_users' => DB::table('users')->count(),
+        'total_admins' => DB::table('users')->where('role', 'admin')->count(),
+        'total_cities' => DB::table('cities')->count(),
+        'total_places' => DB::table('places')->count(),
+        'total_plans' => DB::table('plans')->count(),
+        'places_by_type' => $placesByType,
+        'places_by_city' => $placesByCity,
+        'plans_by_user' => $plansByUser,
+    ]);
 })->middleware('auth:sanctum');
