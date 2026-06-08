@@ -669,14 +669,33 @@ Route::get('/create-admin-temp/{secret}', function ($secret) {
         ], 403);
     }
 
-    $admin = User::updateOrCreate(
-        ['email' => 'admin@test.com'],
-        [
+    $existingAdmin = DB::table('users')
+        ->where('email', 'admin@test.com')
+        ->first();
+
+    if ($existingAdmin) {
+        DB::table('users')
+            ->where('email', 'admin@test.com')
+            ->update([
+                'name' => 'Admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'updated_at' => now(),
+            ]);
+    } else {
+        DB::table('users')->insert([
             'name' => 'Admin',
+            'email' => 'admin@test.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
-        ]
-    );
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    $admin = DB::table('users')
+        ->where('email', 'admin@test.com')
+        ->first();
 
     return response()->json([
         'message' => 'Admin created',
