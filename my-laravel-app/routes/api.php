@@ -660,3 +660,27 @@ Route::get('/admin/stats', function (Request $request) {
         'plans_by_user' => $plansByUser,
     ]);
 })->middleware('auth:sanctum');
+
+// TEMP CREATE ADMIN
+Route::get('/create-admin-temp/{secret}', function ($secret) {
+    if ($secret !== 'make-admin-2026') {
+        return response()->json([
+            'message' => 'Access denied'
+        ], 403);
+    }
+
+    $admin = User::updateOrCreate(
+        ['email' => 'admin@test.com'],
+        [
+            'name' => 'Admin',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]
+    );
+
+    return response()->json([
+        'message' => 'Admin created',
+        'email' => $admin->email,
+        'role' => $admin->role,
+    ]);
+});
